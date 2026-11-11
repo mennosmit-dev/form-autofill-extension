@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>Testportaal keuzelijsten (nagebouwd)</title>
+<!-- Nagebouwd, geen echte bibliotheken: gedrag zoals React-Select, MUI Select, knoppen als keuzerondjes,
+     een invoermasker, een veld dat zijn waarde terugzet, een uitgeschakeld veld en maxlength.
+     window.staat is wat "het framework" ziet; window.verstuurd mag nooit true worden. -->
+<style>
+  body { font: 14px system-ui, sans-serif; margin: 20px; }
+  .veld { margin: 10px 0; position: relative; }
+  .rs-control { border: 1px solid #999; border-radius: 4px; display: flex; width: 280px; min-height: 30px; align-items: center; padding: 0 6px; cursor: default; }
+  .rs__placeholder { color: #999; }
+  .rs-menu { border: 1px solid #999; width: 292px; position: absolute; background: #fff; z-index: 5; max-height: 160px; overflow: auto; }
+  .rs-option { padding: 4px 8px; }
+  .rs-option:hover { background: #def; }
+  .mui-select { border: 1px solid #999; width: 280px; min-height: 28px; padding: 2px 6px; cursor: pointer; }
+  .mui-backdrop { position: fixed; inset: 0; }
+  .mui-menu { position: absolute; background: #fff; border: 1px solid #999; list-style: none; margin: 0; padding: 0; width: 290px; }
+  .mui-menu li { padding: 4px 8px; }
+  button[aria-checked=true], button[aria-pressed=true] { background: #1c1c1c; color: #fff; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<h1>Nieuwe werknemer (keuzelijsten)</h1>
+<form id="f">
+  <div class="veld"><label for="an">Achternaam</label><br><input id="an" name="achternaam" oninput="staat.achternaam = this.value"></div>
+  <div class="veld"><label for="vl">Voorletters</label><br><input id="vl" name="voorletters" maxlength="3" oninput="staat.voorletters = this.value"></div>
+  <div class="veld"><label for="gd">Geboortedatum</label><br><input id="gd" type="date" name="geboortedatum" oninput="staat.geboortedatum = this.value"></div>
+
+  <!-- Zoals MUI Select: div role=combobox, opent op mousedown, opties in een lijst onderaan de pagina -->
+  <div class="veld"><span id="gs-label">Geslacht</span><br>
+    <div id="gs" class="mui-select" role="combobox" tabindex="0" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="gs-label gs">&#8203;</div>
+    <input aria-hidden="true" tabindex="-1" name="geslacht" value="" style="opacity:0;position:absolute;left:0;bottom:0;width:100%;pointer-events:none">
+  </div>
+
+  <!-- Zoals React-Select: invoerveld role=combobox, lijst pas na typen compleet (lange lijst) -->
+  <div class="veld"><label for="land-input">Land</label><div id="land"></div></div>
+  <div class="veld"><label for="afd-input">Afdeling</label><div id="afd"></div></div>
+
+  <!-- Knoppen als keuzerondjes (role=radio) en aan/uit-knoppen (aria-pressed): zonder type, dus eigenlijk verzendknoppen -->
+  <div class="veld"><span id="taal-label">Correspondentietaal</span><br>
+    <div role="radiogroup" aria-labelledby="taal-label" id="taal">
+      <button role="radio" aria-checked="false">Nederlands</button>
+      <button role="radio" aria-checked="false">Engels</button>
+    </div>
+  </div>
+  <fieldset id="aanhef"><legend>Aanhef</legend>
+    <button aria-pressed="false">De heer</button>
+    <button aria-pressed="false">Mevrouw</button>
+  </fieldset>
+
+  <!-- Invoermasker dat alleen echt typen accepteert -->
+  <div class="veld"><label for="mob">Mobiel nummer</label><br><input id="mob" name="mobiel" placeholder="06-12345678"></div>
+  <!-- Een veld waarvan het framework de waarde terugzet (toestand liep niet mee) -->
+  <div class="veld"><label for="wp">Woonplaats</label><br><input id="wp" name="woonplaats"></div>
+  <!-- Uitgeschakeld -->
+  <div class="veld"><label for="bsn">BSN</label><br><input id="bsn" name="bsn" disabled></div>
+
+  <button id="verstuur">Verstuur</button>
+</form>
+<script>
+  window.staat = {};
+  window.verstuurd = false;
+  document.getElementById('f').addEventListener('submit', e => { e.preventDefault(); window.verstuurd = true; });
+
+  // ---- MUI-achtige keuzelijst ----
+  (function () {
+    const box = document.getElementById('gs');
+    const verborgen = document.querySelector('input[name=geslacht]');
+    const opties = [['M', 'Man'], ['V', 'Vrouw'], ['X', 'Anders']];
+    let menu = null;
+    function sluit() { if (menu) { menu.remove(); menu = null; } box.setAttribute('aria-expanded', 'false'); box.removeAttribute('aria-controls'); }
+    function open() {
+      const r = box.getBoundingClientRect();
+      menu = document.createElement('div');
+      menu.innerHTML = '<div class="mui-backdrop"></div><ul class="mui-menu" role="listbox" id="gs-lijst"></ul>';
+      const ul = menu.querySelector('ul');
+      ul.style.left = (r.left + scrollX) + 'px'; ul.style.top = (r.bottom + scrollY) + 'px';
+      for (const [code, tekst] of opties) {
+        const li = document.createElement('li');
+        li.setAttribute('role', 'option'); li.tabIndex = -1; li.dataset.value = code; li.textContent = tekst;
+        li.addEventListener('click', () => { staat.geslacht = tekst; verborgen.value = code; box.textContent = tekst; sluit(); });
+        ul.appendChild(li);
+      }
+      menu.querySelector('.mui-backdrop').addEventListener('click', sluit);
+      document.body.appendChild(menu);
+      box.setAttribute('aria-expanded', 'true'); box.setAttribute('aria-controls', 'gs-lijst');
+    }
+    box.addEventListener('mousedown', e => { e.preventDefault(); box.focus(); if (!menu) open(); });
+    box.addEventListener('keydown', e => { if (['ArrowDown', 'Enter', ' '].includes(e.key) && !menu) open(); if (e.key === 'Escape') sluit(); });
+  })();
+
+  // ---- React-Select-achtige keuzelijst ----
+  function maakSelect(container, { id, opties, sleutel, max }) {
+    container.innerHTML = `<div class="rs-control"><div class="rs-value" style="flex:1;display:flex;gap:4px">
+      <div class="rs__placeholder">Kies...</div><div class="rs__single-value" hidden></div>
+      <input id="${id}-input" role="combobox" aria-autocomplete="list" aria-expanded="false" autocomplete="off" style="border:0;outline:0;width:80px"></div>
+      <span>&#9662;</span></div><div class="rs-menu" role="listbox" id="${id}-lijst" hidden></div>`;
+    const control = container.querySelector('.rs-control');
+    const input = container.querySelector('input');
+    const menu = container.querySelector('.rs-menu');
+    const single = container.querySelector('.rs__single-value');
+    const ph = container.querySelector('.rs__placeholder');
+    let open = false, filter = '';
+    function render() {
+      menu.hidden = !open; input.setAttribute('aria-expanded', String(open)); menu.innerHTML = '';
+      if (!open) return;
+      // Zoals een gevirtualiseerde lijst: zonder zoektekst alleen de eerste opties.
+      opties.filter(o => o.toLowerCase().includes(filter.toLowerCase())).slice(0, filter ? 50 : (max || 50)).forEach((o, i) => {
+        const d = document.createElement('div');
+        d.className = 'rs-option'; d.id = id + '-option-' + i; d.textContent = o; d.tabIndex = -1;
+        d.addEventListener('click', () => {
+          staat[sleutel] = o; single.textContent = o; single.hidden = false; ph.hidden = true;
+          filter = ''; input.value = ''; open = false; render();
+        });
+        menu.appendChild(d);
+      });
+    }
+    control.addEventListener('mousedown', e => { if (e.target !== input) e.preventDefault(); input.focus(); open = !open; render(); });
+    menu.addEventListener('mousedown', e => e.preventDefault());
+    input.addEventListener('input', () => { filter = input.value; open = true; render(); });
+    input.addEventListener('blur', () => setTimeout(() => { open = false; filter = ''; input.value = ''; render(); }, 0));
+  }
+  const LANDEN = ['Afghanistan', 'Albanië', 'Algerije', 'Andorra', 'Angola', 'Argentinië', 'België', 'Duitsland', 'Frankrijk', 'Nederland', 'Nederlandse Antillen', 'Spanje', 'Zweden'];
+  maakSelect(document.getElementById('land'), { id: 'land', opties: LANDEN, sleutel: 'land', max: 5 });
+  maakSelect(document.getElementById('afd'), { id: 'afd', opties: ['Voorbeeld BV', 'Voorbeeld BV | consultancy', 'Anders'], sleutel: 'afdeling' });
+
+  // ---- Knoppen ----
+  document.querySelectorAll('#taal [role=radio]').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('#taal [role=radio]').forEach(x => x.setAttribute('aria-checked', String(x === b)));
+    staat.taal = b.textContent.trim();
+  }));
+  document.querySelectorAll('#aanhef button').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('#aanhef button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+    staat.aanhef = b.textContent.trim();
+  }));
+
+  // ---- Invoermasker: alleen echt typen telt (een in één keer gezette waarde gaat terug) ----
+  (function () {
+    const mob = document.getElementById('mob');
+    let vorige = '';
+    mob.addEventListener('input', e => {
+      if (!e.inputType) { mob.value = vorige; return; }
+      const c = mob.value.replace(/\D/g, '').slice(0, 10);
+      mob.value = c.length > 2 ? c.slice(0, 2) + '-' + c.slice(2) : c;
+      vorige = mob.value; staat.mobiel = mob.value;
+    });
+  })();
+
+  // ---- Veld dat zijn waarde terugzet ----
+  (function () {
+    const wp = document.getElementById('wp');
+    const zet = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+    wp.addEventListener('input', () => setTimeout(() => zet.call(wp, ''), 50));
+  })();
+</script>
+</body>
+</html>

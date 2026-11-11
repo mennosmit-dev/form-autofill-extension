@@ -1,0 +1,27 @@
+{
+  "soort": "adressenboekje-koppelingen",
+  "versie": 4,
+  "datum": "2026-01-01",
+  "koppelingen": {
+    "hrsuite": [
+      { "veld": { "id": "achternaam", "name": "", "label": "achternaam", "nr": 1, "type": "text" }, "sleutel": "achternaam" },
+      { "veld": { "id": "", "name": "", "label": "roepnaam", "nr": 1, "type": "text" }, "sleutel": "roepnaam" }
+    ],
+    "intake-portal.example": [
+      { "veld": { "id": "f_ln", "name": "lastName", "label": "naam verzekerde", "nr": 1, "type": "text" }, "sleutel": "achternaam", "pagina": "p1" },
+      { "veld": { "id": "f_iban", "name": "iban", "label": "iban", "nr": 1, "type": "text" }, "sleutel": "leeg", "pagina": "p1" },
+      { "veld": { "id": "", "name": "", "label": "", "nr": 3, "type": "select" }, "sleutel": "geslacht", "pagina": "p1" }
+    ]
+  },
+  "hosts": {
+    "www.intake-portal.example": "intake-portal.example"
+  },
+  "paginas": {
+    "intake-portal.example": [
+      { "id": "p1", "titel": "Nieuwe verzekerde", "velden": 3, "datum": "1-1-2026" }
+    ]
+  },
+  "instellingen": {
+    "intake-portal.example": { "salarisEenheid": "maand", "getalNotatie": "" }
+  }
+}

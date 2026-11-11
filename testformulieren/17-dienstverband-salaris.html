@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>Testportaal dienstverband en salaris (nagebouwd)</title>
+<!-- Verzonnen portaal voor de faalpunten van 9/11: dienstverband op drie manieren (keuzelijst met "Bepaalde tijd" vóór
+     "Onbepaalde tijd", keuzerondjes Vast/Tijdelijk, zelfgebouwde keuzelijst), salaris (fulltime jaarsalaris en maandsalaris),
+     een veld dat al een andere waarde heeft, een veld dat de waarde inkort (mag nooit half blijven staan), een telefoon-
+     landcode met het nummer in een vakje zonder label (zoals HealthDesk), en een datumkiezer met een id dat per keer laden
+     anders is (dp + tijd, zoals jQuery UI). window.staat = wat het formulier ziet; window.verstuurd moet false blijven. -->
+<style>
+  body { font: 14px system-ui, sans-serif; margin: 20px; }
+  .veld { margin: 10px 0; position: relative; }
+  .lijst { border: 1px solid #999; position: absolute; background: #fff; z-index: 5; width: 260px; }
+  .lijst div { padding: 4px 8px; }
+</style>
+</head>
+<body>
+<h1>Werknemer aanmelden</h1>
+<form id="f">
+  <div class="veld"><label for="an">Achternaam</label><br><input id="an" name="achternaam" oninput="staat.achternaam = this.value"></div>
+  <div class="veld"><label for="vl">Voorletters</label><br><input id="vl" name="voorletters"></div>
+  <div class="veld"><label id="gd-l">Geboortedatum</label><br><input aria-labelledby="gd-l" placeholder="dd-mm-jjjj" oninput="staat.geboortedatum = this.value"></div>
+  <div class="veld"><label for="wp">Woonplaats</label><br><input id="wp" name="woonplaats" value="Amsterdam" oninput="staat.woonplaats = this.value"></div>
+
+  <div class="veld"><label for="tel-lc">Telefoon privé</label><br>
+    <input id="tel-lc" role="combobox" aria-autocomplete="list" aria-expanded="false" value="+31" style="width:50px" oninput="staat.landcode = this.value">
+    <input name="telnr" oninput="staat.telefoon = this.value">
+  </div>
+
+  <div class="veld"><label for="dv">Soort dienstverband</label><br>
+    <select id="dv" name="dv" onchange="staat.dienstverband = this.options[this.selectedIndex].text">
+      <option value="">Maak een keuze</option><option value="B">Bepaalde tijd</option><option value="O">Onbepaalde tijd</option><option value="P">Oproepkracht</option>
+    </select></div>
+  <fieldset id="tc"><legend>Type contract</legend>
+    <label><input type="radio" name="tc" value="1" onchange="staat.typecontract = 'Vast'"> Vast</label>
+    <label><input type="radio" name="tc" value="2" onchange="staat.typecontract = 'Tijdelijk'"> Tijdelijk</label>
+  </fieldset>
+  <div class="veld"><label for="cv-in">Contractvorm</label><br>
+    <input id="cv-in" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="cv-lijst" readonly placeholder="Kies...">
+    <div class="lijst" role="listbox" id="cv-lijst" hidden></div>
+  </div>
+
+  <div class="veld"><label for="fj">Fulltime jaarsalaris</label><br><input id="fj" name="fulltime" oninput="staat.fulltimeJaarsalaris = this.value"></div>
+  <div class="veld"><label for="ms">Bruto maandsalaris</label><br><input id="ms" name="maand" oninput="staat.maandsalaris = this.value"></div>
+  <div class="veld"><label for="pt">Parttimepercentage</label><br><input id="pt" name="pt" oninput="staat.parttime = this.value"></div>
+  <button id="verstuur">Verstuur</button>
+</form>
+<script>
+  window.staat = {};
+  window.verstuurd = false;
+  document.getElementById('f').addEventListener('submit', e => { e.preventDefault(); window.verstuurd = true; });
+
+  // Datumkiezer zoals jQuery UI: id per keer laden anders.
+  document.querySelector("input[aria-labelledby=gd-l]").id = 'dp' + Date.now();
+
+  // Voorletters: het "framework" kort elke invoer in tot 2 tekens. "T.J." past nooit: de extensie mag "T." niet laten staan.
+  const vl = document.getElementById('vl');
+  vl.addEventListener('input', () => { if (vl.value.length > 2) vl.value = vl.value.slice(0, 2); staat.voorletters = vl.value; });
+
+  // Zelfgebouwde keuzelijst Contractvorm.
+  (function () {
+    const input = document.getElementById('cv-in');
+    const lijst = document.getElementById('cv-lijst');
+    const opties = ['Tijdelijk contract', 'Vast contract', 'Uitzendkracht'];
+    function sluit() { lijst.hidden = true; input.setAttribute('aria-expanded', 'false'); }
+    function open() {
+      lijst.innerHTML = '';
+      for (const o of opties) {
+        const d = document.createElement('div');
+        d.setAttribute('role', 'option'); d.textContent = o;
+        d.addEventListener('click', () => { input.value = o; staat.contractvorm = o; sluit(); });
+        lijst.appendChild(d);
+      }
+      lijst.hidden = false; input.setAttribute('aria-expanded', 'true');
+    }
+    input.addEventListener('mousedown', e => { e.preventDefault(); input.focus(); if (lijst.hidden) open(); else sluit(); });
+    input.addEventListener('keydown', e => { if (e.key === 'ArrowDown' && lijst.hidden) open(); if (e.key === 'Escape') sluit(); });
+  })();
+</script>
+</body>
+</html>

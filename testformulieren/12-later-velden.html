@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>Testportaal laadt later (nagebouwd)</title>
+<!-- Nagebouwd: het formulier verschijnt pas na 1,2 seconde (zoals een app die nog gegevens ophaalt),
+     en de adresvelden verschijnen pas 0,4 seconde nadat er een land is gekozen. -->
+<style> body { font: 14px system-ui, sans-serif; margin: 20px; } div { margin: 8px 0; } </style>
+</head>
+<body>
+<h1>Registratie (laadt later)</h1>
+<p id="laden">Bezig met laden...</p>
+<form id="f"></form>
+<script>
+  window.staat = {};
+  window.verstuurd = false;
+  const f = document.getElementById('f');
+  f.addEventListener('submit', e => { e.preventDefault(); window.verstuurd = true; });
+  const opties = (van, tot) => Array.from({ length: tot - van + 1 }, (_, i) => `<option value="${van + i}">${van + i}</option>`).join('');
+  setTimeout(() => {
+    document.getElementById('laden').remove();
+    f.innerHTML = `
+      <div><label for="an">Achternaam</label><br><input id="an" name="achternaam"></div>
+      <div><label for="ld">Land</label><br><select id="ld" name="land"><option value="">-- kies --</option><option value="NL">Nederland</option><option value="BE">België</option></select></div>
+      <div><span>Geboortedatum</span><br>
+        <select name="gd_dag" aria-label="dag"><option value="">dag</option>${opties(1, 31)}</select>
+        <select name="gd_maand" aria-label="maand"><option value="">maand</option>${opties(1, 12)}</select>
+        <select name="gd_jaar" aria-label="jaar"><option value="">jaar</option>${opties(1950, 2010)}</select></div>
+      <div id="adres"></div>
+      <button>Verstuur</button>`;
+    f.addEventListener('input', e => { staat[e.target.name] = e.target.value; });
+    f.addEventListener('change', e => { staat[e.target.name] = e.target.value; });
+    document.getElementById('ld').addEventListener('change', () => setTimeout(() => {
+      if (document.getElementById('pc')) return;
+      document.getElementById('adres').innerHTML = `
+        <div><label for="pc">Postcode</label><br><input id="pc" name="postcode"></div>
+        <div><label for="hn">Huisnummer</label><br><input id="hn" name="huisnummer"></div>
+        <div><label for="st">Straat</label><br><input id="st" name="straat"></div>`;
+    }, 400));
+  }, 1200);
+</script>
+</body>
+</html>

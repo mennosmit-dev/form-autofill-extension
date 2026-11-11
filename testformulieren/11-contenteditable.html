@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>Testportaal tekstvakken (nagebouwd)</title>
+<!-- Nagebouwd: invulvakken die geen <input> zijn maar contenteditable (zoals rich-text-editors en sommige formulierbouwers).
+     De pagina luistert naar input-events, zoals editors doen. -->
+<style>
+  body { font: 14px system-ui, sans-serif; margin: 20px; }
+  .vak { border: 1px solid #999; min-height: 22px; padding: 3px 6px; width: 300px; margin: 4px 0 12px; }
+</style>
+</head>
+<body>
+<h1>Aanmelding (tekstvakken)</h1>
+<form id="f">
+  <span id="l1">Voornaam</span>
+  <div class="vak" contenteditable="true" role="textbox" aria-labelledby="l1" data-sleutel="voornaam"></div>
+  <span id="l2">Functie</span>
+  <div class="vak" contenteditable="" aria-labelledby="l2" data-sleutel="functie"><p><br></p></div>
+  <div class="vak" contenteditable="plaintext-only" aria-label="Achternaam" data-sleutel="achternaam"></div>
+  <span id="l4">Opmerkingen</span>
+  <div class="vak" contenteditable="true" aria-labelledby="l4" data-sleutel="opmerkingen"></div>
+  <label for="pc">Postcode</label><br><input id="pc" name="postcode" oninput="staat.postcode = this.value">
+  <br><button>Verstuur</button>
+</form>
+<script>
+  window.staat = {};
+  window.verstuurd = false;
+  document.getElementById('f').addEventListener('submit', e => { e.preventDefault(); window.verstuurd = true; });
+  document.querySelectorAll('[contenteditable]').forEach(v => v.addEventListener('input', () => { staat[v.dataset.sleutel] = v.textContent.trim(); }));
+</script>
+</body>
+</html>

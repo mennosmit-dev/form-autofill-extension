@@ -1,0 +1,23 @@
+# Packed builds of the extension
+*.zip
+*.crx
+*.pem
+
+# Exported field mappings from real portals: never commit these
+koppelingen/
+adressenboekje-koppelingen*.json
+
+# Screenshots from runs against real sites
+test/screenshot-echt-*.png
+
+# Python / Node
+__pycache__/
+*.pyc
+.venv/
+node_modules/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

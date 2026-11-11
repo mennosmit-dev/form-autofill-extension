@@ -1,0 +1,44 @@
+<!doctype html><html lang="nl"><head><meta charset="utf-8"><title>Testscherm HRSuite medewerker (nagebouwd)</title>
+<style>body{font:14px system-ui;max-width:640px;margin:30px auto}.rij{display:flex;gap:10px;margin:4px 0}.lbl{width:180px;color:#555}.uitleg{color:#666}table{border-collapse:collapse}td{padding:3px 8px;border-bottom:1px solid #eee}section{border:1px solid #ddd;padding:10px;margin:10px 0}</style></head><body>
+<h1>Nagebouwd: medewerker in HRSuite</h1>
+<p class="uitleg">Geen echt HRSuite-scherm, verzonnen testpersoon. Drie soorten weergave door elkaar: alleen-lezen velden, label/waarde-blokjes en een tabel.</p>
+<input type="search" placeholder="Zoeken in HRSuite">
+
+<section><h2>Persoon</h2>
+<label for="p1">Voornamen</label><input id="p1" value="Test Jan" readonly>
+<label for="p2">Roepnaam</label><input id="p2" value="Test" readonly>
+<label for="p3">Voorvoegsel</label><input id="p3" value="van der" readonly>
+<label for="p4">Achternaam</label><input id="p4" value="Persoon" readonly>
+<label for="p5">Geslacht</label><select id="p5" disabled><option value="">-</option><option value="1" selected>Man</option><option value="2">Vrouw</option></select>
+<div class="rij"><span class="lbl">Geboortedatum</span><span>07-03-1995</span></div>
+<div class="rij"><span class="lbl">BSN</span><span>111222333</span></div>
+<div class="rij"><span class="lbl">Nationaliteit</span><span>Nederlandse</span></div>
+</section>
+
+<section><h2>Adres</h2>
+<table>
+<tr><td>Straat</td><td>Teststraat</td></tr>
+<tr><td>Huisnummer</td><td>12</td></tr>
+<tr><td>Toev. aan huisnr.</td><td>A</td></tr>
+<tr><td>Postcode</td><td>1234 ab</td></tr>
+<tr><td>Woonplaats</td><td>Utrecht</td></tr>
+</table>
+</section>
+
+<section><h2>Contact</h2>
+<dl>
+<dt>E-mail werk</dt><dd>test.persoon@werk.example</dd>
+<dt>E-mail privé</dt><dd>test.persoon@prive.example</dd>
+<dt>Mobiel</dt><dd>06-12345678</dd>
+<dt>Noodnummer</dt><dd>0301112222</dd>
+</dl>
+</section>
+
+<section><h2>Dienstverband</h2>
+<div class="rij"><span class="lbl">Datum in dienst</span><span>1-11-2026</span></div>
+<div class="rij"><span class="lbl">Functie</span><span>Consultant</span></div>
+<div class="rij"><span class="lbl">Afdeling</span><span>Data &amp; AI</span></div>
+<div class="rij"><span class="lbl">Uren per week</span><span>32</span></div>
+<div class="rij"><span class="lbl">Salaris per maand</span><span>€ 3.500,00</span></div>
+</section>
+</body></html>

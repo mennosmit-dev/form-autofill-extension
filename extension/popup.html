@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<style>
+  body { font: 13px system-ui, sans-serif; width: 440px; margin: 0; padding: 12px; color: #1c1c1c; }
+  h1 { font-size: 15px; margin: 0 0 8px; }
+  .tabs { display: flex; gap: 2px; margin-bottom: 10px; border-bottom: 1px solid #ddd; }
+  .tabs button { border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: none; padding: 6px 8px; }
+  .tabs button.actief { border-bottom-color: #1c1c1c; font-weight: 600; }
+  .uitleg { color: #666; margin: 0 0 10px; font-size: 12px; }
+  fieldset { border: 0; padding: 0; margin: 0 0 10px; }
+  legend { font-weight: 600; font-size: 12px; margin-bottom: 4px; }
+  .raster { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 8px; }
+  label { display: flex; flex-direction: column; font-size: 11px; color: #555; }
+  input, select, textarea { font: inherit; padding: 4px 6px; border: 1px solid #ccc; border-radius: 4px; }
+  .gevoelig input { border-color: #d9822b; }
+  .berekend input::placeholder { color: #2a7a2a; }
+  .knoppen { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+  button { font: inherit; padding: 6px 10px; border-radius: 4px; border: 1px solid #999; background: #fff; cursor: pointer; }
+  button.hoofd { background: #1c1c1c; color: #fff; border-color: #1c1c1c; flex: 1; }
+  .melding { margin-top: 8px; font-size: 12px; white-space: pre-wrap; background: #f5f5f5; padding: 6px; border-radius: 4px; }
+  .melding:empty { display: none; }
+  .check { font-size: 12px; margin-top: 8px; display: flex; gap: 4px; align-items: center; color: #555; flex-direction: row; }
+  details { margin-top: 10px; font-size: 12px; border-top: 1px solid #eee; padding-top: 6px; }
+  summary { cursor: pointer; color: #333; font-weight: 600; }
+  textarea { width: 100%; box-sizing: border-box; height: 70px; font-size: 11px; margin-top: 6px; font-family: ui-monospace, monospace; }
+  ul.paginas { margin: 4px 0; padding-left: 18px; }
+  ul.paginas button { padding: 0 6px; margin-left: 6px; font-size: 11px; }
+  .koppeltabel { margin-top: 8px; border: 1px solid #ddd; border-radius: 4px; padding: 6px; }
+  .koppeltabel .rijen { max-height: 300px; overflow: auto; }
+  .koppeltabel table { border-collapse: collapse; width: 100%; font-size: 12px; }
+  .koppeltabel td { border-bottom: 1px solid #eee; padding: 2px 3px; vertical-align: middle; }
+  .koppeltabel td.waarde { color: #666; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .koppeltabel select { max-width: 170px; padding: 2px; font-size: 11px; }
+  .koppeltabel tr.onbekend select { background: #ffd9d9; }
+  .diagnose .rijen, .koppeltabel.diagnose { max-height: 320px; overflow: auto; }
+  .diagnose table { table-layout: fixed; font-size: 11px; }
+  .diagnose th { text-align: left; font-weight: 600; border-bottom: 1px solid #ccc; position: sticky; top: 0; background: #fff; }
+  .diagnose td { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 90px; }
+  .diagnose td:last-child { white-space: normal; max-width: 130px; }
+  .diagnose tr.goed td:first-child { border-left: 3px solid #2a7a2a; }
+  .diagnose tr.let td:first-child { border-left: 3px solid #d9a400; }
+  .diagnose tr.onbekend td:first-child { border-left: 3px solid #c0392b; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+  <h1>Adressenboekje</h1>
+  <div class="tabs" id="tabs"></div>
+
+  <!-- Per tabje één knop. Alles wat HR zelden nodig heeft staat onder "Meer". -->
+  <section id="hrsuite">
+    <p class="uitleg">Open de nieuwe collega in HRSuite en klik <b>Haal uit HRSuite</b>. Staat het op meer schermen, klik dan op elk scherm.</p>
+    <div class="knoppen"><button class="hoofd" id="haal">Haal uit HRSuite</button></div>
+    <div class="melding" id="hrsuitemelding"></div>
+    <div id="hrsuitekoppel"></div>
+    <form id="profiel" style="margin-top:12px"></form>
+  </section>
+
+  <section id="portaal" hidden>
+    <p class="uitleg" id="portaaluitleg"></p>
+    <p class="uitleg" id="wie">Nog geen gegevens ingevuld.</p>
+    <div class="knoppen"><button class="hoofd" id="vul">Vul deze pagina</button></div>
+    <div class="melding" id="rapport"></div>
+    <div id="koppeltabel"></div>
+  </section>
+
+  <details id="meer">
+    <summary>Meer</summary>
+    <div id="meerhrsuite">
+      <p class="uitleg"><b>Lukt Haal uit HRSuite niet?</b> Klik op het HRSuite-scherm, druk Ctrl+A en Ctrl+C, en plak hier met Ctrl+V.</p>
+      <textarea id="hrsuitehtml" placeholder="Plak hier het HRSuite-scherm (Ctrl+V)"></textarea>
+      <button id="hrsuitelees" hidden></button>
+      <div class="knoppen">
+        <button id="test" title="Vul een verzonnen testpersoon in">Testpersoon</button>
+        <button id="wis">Wis gegevens</button>
+      </div>
+    </div>
+    <div id="meerportaal" hidden>
+      <p class="uitleg"><b>Lukt Vul deze pagina niet?</b> Klik op de pagina, druk Ctrl+A en Ctrl+C, en plak hier met Ctrl+V.</p>
+      <textarea id="html" placeholder="Plak hier de portaalpagina (Ctrl+V)"></textarea>
+      <button id="koppelplak" hidden></button>
+      <p class="uitleg" style="margin-top:8px">Bekende pagina's van dit portaal (<span id="aantalpaginas">0</span>):</p>
+      <ul class="paginas" id="paginas"></ul>
+      <label class="check" id="hoortbijblok" hidden>Deze site hoort bij <select id="hoortbij"></select></label>
+      <p class="uitleg" style="margin-top:8px">Bekende sites:</p>
+      <ul class="paginas" id="sites"></ul>
+      <label class="check"><input type="checkbox" id="overschrijven"> Velden die al een waarde hebben ook overschrijven</label>
+      <p class="uitleg" style="margin-top:8px"><b>Instellingen voor dit portaal</b></p>
+      <label class="check">Salarisveld wil
+        <select id="salariseenheid">
+          <option value="">wat het gekoppelde gegeven is (geen omrekening)</option>
+          <option value="maand">een maandbedrag (jaarbedrag gedeeld door 12)</option>
+          <option value="jaar">een jaarbedrag (maandbedrag x 12)</option>
+        </select></label>
+      <label class="check">Decimaalteken
+        <select id="getalnotatie">
+          <option value="">komma (3780,50)</option>
+          <option value="punt">punt (3780.50)</option>
+        </select></label>
+      <p class="uitleg">Bedragen altijd zonder euroteken en zonder punt voor duizendtallen.</p>
+    </div>
+    <div class="knoppen"><button id="diagnose" title="Laat per label en waarde zien wat de extensie herkent, en waarom iets niet gevonden wordt">Diagnose: wat ziet de extensie hier?</button></div>
+    <div class="melding" id="diagnosemelding"></div>
+    <div id="diagnosedoos"></div>
+    <p id="aantallen" class="uitleg" style="margin-top:8px"></p>
+    <div class="knoppen"><button id="exporteer" title="Download de koppelingen (alleen veldnamen) om naar de beheerder te sturen">Exporteer koppelingen voor de beheerder</button></div>
+    <textarea id="import" placeholder="Alleen voor de beheerder: plak een koppelingenbestand en klik Importeer"></textarea>
+    <div class="knoppen"><button id="importeer">Importeer</button></div>
+  </details>
+
+  <script src="matcher.js"></script>
+  <script src="portalen.js"></script>
+  <script src="fill.js"></script>
+  <script src="leer.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

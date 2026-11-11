@@ -1,0 +1,34 @@
+<!doctype html><html lang="nl"><head><meta charset="utf-8"><title>Testportaal Insurer A (nagebouwd)</title><style>body{font:14px system-ui;max-width:560px;margin:30px auto}label,.lbl{display:block;font-size:12px;color:#444;margin-top:8px}input,select{padding:4px}.uitleg{color:#666}.stap{border:1px solid #ddd;padding:10px;margin:10px 0}</style></head><body>
+<h1>Nagebouwd: werknemer aanmelden (Insurer A-achtig)</h1>
+<p class="uitleg">Geen echt portaal. Vier schermen met "Volgende", zoals in de test. Geboortedatum in drie keuzelijsten, geslacht als keuzerondjes, één telefoonveld.</p>
+<form>
+<div class="stap" id="s1"><h2>1. Persoonsgegevens</h2>
+<label for="bsn">Burgerservicenummer</label><input id="bsn" name="bsn">
+<label for="vl">Voorletters</label><input id="vl" name="voorletters">
+<label for="vn">Voornamen</label><input id="vn" name="voornamen">
+<label for="tv">Tussenvoegsel</label><input id="tv" name="tussenvoegsel">
+<label for="an">Achternaam</label><input id="an" name="achternaam">
+<fieldset><legend>Geslacht</legend><label><input type="radio" name="geslacht" value="male"> Man</label><label><input type="radio" name="geslacht" value="female"> Vrouw</label></fieldset>
+<span class="lbl">Geboortedatum</span><select name="gebdag"><option value="">Dag</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option>12</option><option>13</option><option>14</option><option>15</option><option>16</option><option>17</option><option>18</option><option>19</option><option>20</option><option>21</option><option>22</option><option>23</option><option>24</option><option>25</option><option>26</option><option>27</option><option>28</option><option>29</option><option>30</option><option>31</option></select><select name="gebmaand"><option value="">Maand</option><option value="1">januari</option><option value="2">februari</option><option value="3">maart</option><option value="4">april</option><option value="5">mei</option><option value="6">juni</option><option value="7">juli</option><option value="8">augustus</option><option value="9">september</option><option value="10">oktober</option><option value="11">november</option><option value="12">december</option></select><select name="gebjaar"><option value="">Jaar</option><option>1940</option><option>1941</option><option>1942</option><option>1943</option><option>1944</option><option>1945</option><option>1946</option><option>1947</option><option>1948</option><option>1949</option><option>1950</option><option>1951</option><option>1952</option><option>1953</option><option>1954</option><option>1955</option><option>1956</option><option>1957</option><option>1958</option><option>1959</option><option>1960</option><option>1961</option><option>1962</option><option>1963</option><option>1964</option><option>1965</option><option>1966</option><option>1967</option><option>1968</option><option>1969</option><option>1970</option><option>1971</option><option>1972</option><option>1973</option><option>1974</option><option>1975</option><option>1976</option><option>1977</option><option>1978</option><option>1979</option><option>1980</option><option>1981</option><option>1982</option><option>1983</option><option>1984</option><option>1985</option><option>1986</option><option>1987</option><option>1988</option><option>1989</option><option>1990</option><option>1991</option><option>1992</option><option>1993</option><option>1994</option><option>1995</option><option>1996</option><option>1997</option><option>1998</option><option>1999</option><option>2000</option><option>2001</option><option>2002</option><option>2003</option><option>2004</option><option>2005</option><option>2006</option><option>2007</option><option>2008</option><option>2009</option><option>2010</option></select>
+<br><button type="button" class="volgende">Volgende</button></div>
+<div class="stap" id="s2" hidden><h2>2. Adres</h2>
+<label for="pc">Postcode</label><input id="pc" name="postcode">
+<label for="hn">Huisnummer</label><input id="hn" name="huisnummer">
+<label for="ht">Toevoeging</label><input id="ht" name="toevoeging">
+<label for="st">Straat</label><input id="st" name="straat">
+<label for="wp">Woonplaats</label><input id="wp" name="woonplaats">
+<br><button type="button" class="volgende">Volgende</button></div>
+<div class="stap" id="s3" hidden><h2>3. Contact</h2>
+<label for="em">E-mailadres</label><input id="em" type="email" name="email">
+<label for="tel">Telefoonnummer</label><input id="tel" name="telefoon">
+<br><button type="button" class="volgende">Volgende</button></div>
+<div class="stap" id="s4" hidden><h2>4. Dienstverband</h2>
+<label for="did">Datum indiensttreding</label><input id="did" name="indienst" placeholder="dd-mm-jjjj">
+<label for="fjs">Fulltime jaarsalaris</label><input id="fjs" name="fulltimejaarsalaris">
+<label for="ptp">Parttimepercentage</label><input id="ptp" name="parttime">
+<label for="bs">Burgerlijke staat</label><select id="bs" name="burgerlijkestaat"><option value="">Kies</option><option>Gehuwd</option><option>Ongehuwd</option></select>
+</div>
+</form>
+<script>document.querySelectorAll(".volgende").forEach(b=>b.onclick=()=>{const s=b.closest(".stap");s.hidden=true;s.nextElementSibling.hidden=false;});</script>
+<button type="button" id="verstuur">Verstuur (toont wat het portaal ontvangt)</button><pre id="uit"></pre>
+<script>document.getElementById("verstuur").onclick=()=>{const d={};document.querySelectorAll("form").forEach(f=>new FormData(f).forEach((v,k)=>d[k]=v));document.getElementById("uit").textContent=JSON.stringify(d,null,2)};</script></body></html>

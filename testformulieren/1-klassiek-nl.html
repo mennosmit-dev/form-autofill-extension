@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="nl">
+<head><meta charset="utf-8"><title>Testformulier 1: klassiek, Nederlandse labels</title>
+<style>body{font:14px system-ui;max-width:520px;margin:30px auto}label{display:block;margin-top:8px}input,select{width:100%;padding:5px}.uitleg{color:#666}</style></head>
+<body>
+<h1>Testformulier 1</h1>
+<p class="uitleg">Nagebouwd portaal met gewone &lt;label for&gt;-koppelingen, zoals een arbodienst die NAW en functie vraagt. Geen echt portaal.</p>
+<form onsubmit="event.preventDefault(); document.getElementById('uit').textContent = JSON.stringify(Object.fromEntries(new FormData(this)), null, 2)">
+  <label for="vl">Voorletters</label><input id="vl" name="f1">
+  <label for="tv">Tussenvoegsel</label><input id="tv" name="f2">
+  <label for="an">Achternaam *</label><input id="an" name="f3">
+  <label for="gd">Geboortedatum (dd-mm-jjjj)</label><input id="gd" name="f4">
+  <label for="st">Straat</label><input id="st" name="f5">
+  <label for="hn">Huisnummer</label><input id="hn" name="f6">
+  <label for="pc">Postcode</label><input id="pc" name="f7">
+  <label for="wp">Woonplaats</label><input id="wp" name="f8">
+  <label for="fu">Functie</label><input id="fu" name="f9">
+  <label for="wg">Werkgever</label><input id="wg" name="f10" value="Voorbeeld BV">
+  <label for="op">Opmerkingen</label><input id="op" name="f11">
+  <button>Verstuur (toont alleen wat het portaal ontvangt)</button>
+</form>
+<pre id="uit"></pre>
+</body></html>

@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>Adressenboekje (bookmarklet-variant)</title>
+<style>
+  body { font: 14px system-ui, sans-serif; max-width: 560px; margin: 30px auto; color: #1c1c1c; }
+  .raster { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; }
+  label { display: flex; flex-direction: column; font-size: 12px; color: #555; }
+  input { font: inherit; padding: 5px 7px; border: 1px solid #ccc; border-radius: 4px; }
+  .stap { background: #f5f5f5; padding: 10px 12px; border-radius: 6px; margin: 14px 0; }
+  a.bm { display: inline-block; padding: 6px 12px; background: #1c1c1c; color: #fff; border-radius: 4px; text-decoration: none; }
+  button { font: inherit; padding: 6px 12px; }
+  .let-op { color: #a14b00; font-size: 12px; }
+</style>
+</head>
+<body>
+<h1>Adressenboekje</h1>
+<p>Variant zonder installatie. Niets wordt opgeslagen: sluit je dit tabblad, dan zijn de gegevens weg.</p>
+
+<div class="stap"><b>Eenmalig:</b> sleep deze knop naar je bladwijzerbalk: <a class="bm" href="__BOOKMARKLET__">Vul in</a></div>
+
+<form id="profiel" class="raster">
+  <label>Voornaam<input name="voornaam"></label>
+  <label>Tussenvoegsel<input name="tussenvoegsel"></label>
+  <label>Achternaam<input name="achternaam"></label>
+  <label>Voorletters<input name="voorletters" placeholder="leeg = uit voornaam"></label>
+  <label>E-mail (werk)<input name="email"></label>
+  <label>Telefoon<input name="telefoon"></label>
+  <label>Geboortedatum<input name="geboortedatum" type="date"></label>
+  <label>Straat<input name="straat"></label>
+  <label>Huisnummer<input name="huisnummer"></label>
+  <label>Toevoeging<input name="toevoeging"></label>
+  <label>Postcode<input name="postcode"></label>
+  <label>Woonplaats<input name="woonplaats"></label>
+  <label>Land<input name="land" value="Nederland"></label>
+  <label>Functie<input name="functie"></label>
+  <label>Afdeling / team<input name="afdeling"></label>
+  <label>Startdatum<input name="startdatum" type="date"></label>
+</form>
+
+<div class="stap">
+  <b>Per portaal:</b> klik <button id="kopieer">Kopieer gegevens</button>, ga naar het portaal, klik "Vul in" in je bladwijzerbalk en plak (Ctrl+V).
+  <p class="let-op">Let op: gegevens op het klembord kunnen in de klembordgeschiedenis van Windows (Win+V) blijven staan, en met klembord-sync gaan ze naar de cloud. Salaris zit daarom niet in deze variant.</p>
+  <span id="melding"></span>
+</div>
+
+<script>
+  document.getElementById('kopieer').onclick = async () => {
+    const data = Object.fromEntries(new FormData(document.getElementById('profiel')).entries());
+    await navigator.clipboard.writeText(JSON.stringify(data));
+    document.getElementById('melding').textContent = 'Gekopieerd.';
+  };
+</script>
+</body>
+</html>

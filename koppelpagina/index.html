@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>Koppelpagina adressenboekje</title>
+<style>
+  body { font: 13px system-ui, sans-serif; margin: 0; color: #1c1c1c; display: grid; grid-template-columns: 560px 1fr; height: 100vh; }
+  .links { padding: 14px; overflow: auto; border-right: 1px solid #ddd; }
+  h1 { font-size: 17px; margin: 0 0 4px; }
+  .uitleg { color: #666; font-size: 12px; margin: 0 0 12px; }
+  .balk { display: flex; gap: 8px; flex-wrap: wrap; align-items: end; margin-bottom: 10px; }
+  label { display: flex; flex-direction: column; font-size: 11px; color: #555; gap: 2px; }
+  input, select, button, textarea { font: inherit; }
+  button { padding: 5px 10px; border-radius: 4px; border: 1px solid #999; background: #fff; cursor: pointer; }
+  button.hoofd { background: #1c1c1c; color: #fff; border-color: #1c1c1c; }
+  table { border-collapse: collapse; width: 100%; font-size: 12px; }
+  th { text-align: left; color: #555; font-weight: 600; border-bottom: 1px solid #ccc; padding: 4px; }
+  td { border-bottom: 1px solid #eee; padding: 3px 4px; vertical-align: middle; }
+  td.tech { color: #888; font-family: ui-monospace, monospace; font-size: 11px; }
+  tr.onbekend select { background: #ffd9d9; }
+  tr:hover { background: #fff8e1; }
+  select.keuze { max-width: 200px; }
+  #melding { margin: 8px 0; font-size: 12px; color: #2a7a2a; min-height: 16px; }
+  textarea { width: 100%; box-sizing: border-box; height: 140px; font-family: ui-monospace, monospace; font-size: 11px; }
+  iframe { width: 100%; height: 100%; border: 0; }
+  .leeg { color: #888; padding: 40px; }
+</style>
+</head>
+<body>
+<div class="links">
+  <h1>Koppelpagina</h1>
+  <p class="uitleg">Open een opgeslagen portaalscherm (in Edge: Ctrl+S, "Webpagina, volledig", met een leeg formulier of een testpersoon). Je ziet elk veld met de gok van de extensie; zet goed wat niet klopt en exporteer. Het bestand importeer je in de extensie of plak je in <code>portalen.js</code>. Er gaat niets het internet op.</p>
+  <div class="balk">
+    <label>HTML-bestand<input type="file" id="bestand" accept=".html,.htm"></label>
+    <label>Portaal<select id="portaal"></select></label>
+    <label>Site<input id="host" placeholder="bijv. pension.insurer-a.example" size="22"></label>
+  </div>
+  <table id="tabel" hidden>
+    <thead><tr><th>#</th><th>Label op de pagina</th><th>Technisch</th><th>Gegeven</th></tr></thead>
+    <tbody></tbody>
+  </table>
+  <div id="melding"></div>
+  <div class="balk" id="acties" hidden>
+    <button class="hoofd" id="exporteer">Exporteer koppelbestand</button>
+    <button id="code">Toon als code voor portalen.js</button>
+  </div>
+  <textarea id="uitvoer" hidden readonly></textarea>
+</div>
+<div><div class="leeg" id="voorbeeldleeg">Hier verschijnt het scherm.</div><iframe id="voorbeeld" sandbox="allow-same-origin" hidden></iframe></div>
+
+<script src="../extension/matcher.js"></script>
+<script src="../extension/portalen.js"></script>
+<script src="../extension/fill.js"></script>
+<script src="../extension/leer.js"></script>
+<script>
+  const { PORTALEN } = AdressenboekjePortalen;
+  const portaalEl = document.getElementById('portaal');
+  const iframe = document.getElementById('voorbeeld');
+  const tbody = document.querySelector('#tabel tbody');
+  const melding = document.getElementById('melding');
+  let rijen = [];
+
+  for (const [id, p] of Object.entries(PORTALEN)) portaalEl.add(new Option(p.naam, id));
+
+  document.getElementById('bestand').addEventListener('change', async e => {
+    const bestand = e.target.files[0];
+    if (!bestand) return;
+    const html = await bestand.text();
+    // Edge en Chrome zetten bij Ctrl+S "saved from url=(...)https://..." bovenaan.
+    const bron = html.match(/saved from url=\(\d+\)(\S+)/);
+    if (bron) {
+      try {
+        const host = new URL(bron[1]).hostname;
+        document.getElementById('host').value = host;
+        const id = AdressenboekjePortalen.portaalVoorHost(host, {});
+        if (id && PORTALEN[id]) portaalEl.value = id;
+      } catch (err) { /* geen geldige url */ }
+    }
+    // Zonder allow-scripts draait er niets van het portaal; de velden staan er wel.
+    iframe.srcdoc = html;
+    iframe.hidden = false;
+    document.getElementById('voorbeeldleeg').hidden = true;
+    iframe.onload = analyseer;
+  });
+  portaalEl.addEventListener('change', () => { if (iframe.contentDocument) analyseer(); });
+
+  function analyseer() {
+    const doc = iframe.contentDocument;
+    const portaal = PORTALEN[portaalEl.value];
+    const items = AdressenboekjeAnalyse({ doc, portaal, koppelingen: portaal.koppelingen });
+    const keuzes = AdressenboekjeKeuzes();
+    tbody.innerHTML = '';
+    rijen = items.map((item, i) => {
+      const tr = document.createElement('tr');
+      let huidig = item.sleutel === 'telefoonOfMobiel' ? 'mobiel' : item.sleutel === 'bedrijf' ? 'overslaan' : item.sleutel;
+      const s = document.createElement('select');
+      s.className = 'keuze';
+      for (const [w, t] of keuzes) s.add(new Option(t, w));
+      if (huidig && keuzes.some(k => k[0] === huidig)) s.value = huidig; else { s.value = 'overslaan'; tr.classList.add('onbekend'); }
+      s.addEventListener('change', () => tr.classList.remove('onbekend'));
+      const f = item.vingerafdruk;
+      tr.innerHTML = `<td>${i + 1}</td><td></td><td class="tech"></td><td></td>`;
+      tr.children[1].textContent = AdressenboekjeNaamVan(item) + (f.nr > 1 ? ' (' + f.nr + 'e)' : '');
+      tr.children[2].textContent = [f.type, f.id && '#' + f.id, f.name && 'name=' + f.name].filter(Boolean).join(' ');
+      tr.children[3].appendChild(s);
+      // Aanwijzen in de tabel licht het veld op in het scherm.
+      tr.addEventListener('mouseenter', () => { item.el.style.outline = '3px solid #f5b400'; item.el.scrollIntoView({ block: 'center' }); });
+      tr.addEventListener('mouseleave', () => { item.el.style.outline = ''; });
+      tbody.appendChild(tr);
+      return { item, s };
+    });
+    document.getElementById('tabel').hidden = !rijen.length;
+    document.getElementById('acties').hidden = !rijen.length;
+    const onbekend = rijen.filter(r => r.s.closest('tr').classList.contains('onbekend')).length;
+    melding.textContent = rijen.length
+      ? `${rijen.length} velden gevonden, ${onbekend} niet herkend (rood). Alleen zichtbare velden tellen, net als in de extensie: sla bij meerdere schermen elk scherm apart op.`
+      : 'Geen invulvelden gevonden. Bewaar de pagina met Ctrl+S als "Webpagina, volledig" terwijl het formulier open staat; "paginabron weergeven" mist vaak de velden die het portaal pas later opbouwt.';
+  }
+
+  function koppelingen() {
+    return rijen.map(({ item, s }) => ({ veld: item.vingerafdruk, sleutel: s.value }));
+  }
+
+  document.getElementById('exporteer').addEventListener('click', () => {
+    const id = portaalEl.value;
+    const host = document.getElementById('host').value.trim();
+    const inhoud = {
+      soort: 'adressenboekje-koppelingen', versie: 1, datum: new Date().toISOString().slice(0, 10),
+      koppelingen: { [id]: koppelingen() }, hosts: host ? { [host]: id } : {},
+    };
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(inhoud, null, 2)], { type: 'application/json' }));
+    a.download = `koppelingen-${id}.json`;
+    a.click();
+    melding.textContent = 'Gedownload. Importeer het in de extensie onder "Koppelingen beheren".';
+  });
+
+  document.getElementById('code').addEventListener('click', () => {
+    const uit = document.getElementById('uitvoer');
+    uit.hidden = false;
+    uit.value = '      koppelingen: ' + JSON.stringify(koppelingen(), null, 2).replace(/\n/g, '\n      ') + ',';
+    uit.select();
+    melding.textContent = `Plak dit in portalen.js bij ${PORTALEN[portaalEl.value].naam}, in plaats van "koppelingen: []".`;
+  });
+</script>
+</body>
+</html>

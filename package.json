@@ -1,0 +1,12 @@
+{
+  "name": "form-autofill-extension",
+  "version": "0.6.0",
+  "private": true,
+  "description": "Manifest V3 browser extension that fills a new hire's details into HR, insurance and payroll web forms.",
+  "license": "MIT",
+  "author": "Menno Smit",
+  "scripts": {
+    "test": "node --test test/matcher.test.js test/v06.test.js",
+    "build:bookmarklet": "node bookmarklet/build.js"
+  }
+}

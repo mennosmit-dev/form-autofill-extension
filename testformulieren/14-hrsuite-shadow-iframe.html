@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>HRSuite medewerker (nagebouwd, shadow DOM en iframe)</title>
+<!-- Helemaal verzonnen HRSuite-scherm: persoonsgegevens in een webcomponent (shadow root, als tekst en alleen-lezen velden),
+     het adres in een iframe van dezelfde site. Alleen de verzonnen testpersoon. -->
+<style> body { font: 14px system-ui, sans-serif; margin: 20px; } iframe { width: 520px; height: 220px; border: 1px solid #ccc; } </style>
+</head>
+<body>
+<h1>Medewerker: Test Persoon</h1>
+<hrsuite-kaart></hrsuite-kaart>
+<h2>Adres</h2>
+<iframe src="14-hrsuite-frame.html" title="Adres"></iframe>
+<script>
+  class HrSuiteKaart extends HTMLElement {
+    connectedCallback() {
+      if (this.shadowRoot) return;
+      const r = this.attachShadow({ mode: 'open' });
+      r.innerHTML = `<style>dt{font-weight:600}</style>
+        <dl>
+          <dt>Achternaam</dt><dd>Persoon</dd>
+          <dt>Voornamen</dt><dd>Test Jan</dd>
+          <dt>Geslacht</dt><dd>Man</dd>
+        </dl>
+        <label for="gd">Geboortedatum</label> <input id="gd" readonly value="07-03-1995"><br>
+        <label for="em">E-mail werk</label> <input id="em" readonly value="test.persoon@werk.example">`;
+    }
+  }
+  customElements.define('hrsuite-kaart', HrSuiteKaart);
+</script>
+</body>
+</html>

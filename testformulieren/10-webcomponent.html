@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>Testportaal webcomponenten (nagebouwd)</title>
+<!-- Nagebouwd: velden in open shadow roots (zoals Lit, Shoelace, Salesforce Lightning), een component met meer velden,
+     een component in een component, een <slot> en een keuzelijst in een shadow root die opent op een klik (zoals Angular Material). -->
+<style> body { font: 14px system-ui, sans-serif; margin: 20px; } </style>
+</head>
+<body>
+<h1>Nieuwe medewerker (webcomponenten)</h1>
+<form id="f">
+  <ab-veld label="Voornaam" name="voornaam"></ab-veld>
+  <ab-veld label="Achternaam" name="achternaam"></ab-veld>
+  <ab-keuze label="Geslacht" name="geslacht" opties="Man,Vrouw,Onbekend"></ab-keuze>
+  <ab-adres id="adres"></ab-adres>
+  <ab-contact></ab-contact>
+  <ab-kaart titel="Woonadres">
+    <label>Woonplaats <input name="woonplaats" oninput="staat.woonplaats = this.value"></label>
+  </ab-kaart>
+  <button>Verstuur</button>
+</form>
+<script>
+  window.staat = {};
+  window.verstuurd = false;
+  document.getElementById('f').addEventListener('submit', e => { e.preventDefault(); window.verstuurd = true; });
+
+  class AbVeld extends HTMLElement {
+    connectedCallback() {
+      if (this.shadowRoot) return;
+      const r = this.attachShadow({ mode: 'open' });
+      r.innerHTML = '<style>:host{display:block;margin:8px 0}</style><label for="i"></label><br><input id="i">';
+      r.querySelector('label').textContent = this.getAttribute('label');
+      const i = r.querySelector('input');
+      i.type = this.getAttribute('type') || 'text';
+      i.addEventListener('input', () => { staat[this.getAttribute('name')] = i.value; });
+    }
+  }
+  customElements.define('ab-veld', AbVeld);
+
+  class AbAdres extends HTMLElement {
+    connectedCallback() {
+      if (this.shadowRoot) return;
+      const r = this.attachShadow({ mode: 'open' });
+      r.innerHTML = `<style>div{margin:8px 0}</style>
+        <div><label for="s">Straat</label><br><input id="s"></div>
+        <div><label for="h">Huisnummer</label><br><input id="h" maxlength="5"></div>
+        <div><label for="t">Toevoeging</label><br><input id="t" maxlength="4"></div>
+        <div><label for="p">Postcode</label><br><input id="p"></div>`;
+      for (const [id, sleutel] of [['s', 'straat'], ['h', 'huisnummer'], ['t', 'toevoeging'], ['p', 'postcode']]) {
+        r.getElementById(id).addEventListener('input', e => { staat[sleutel] = e.target.value; });
+      }
+    }
+  }
+  customElements.define('ab-adres', AbAdres);
+
+  // Een component in een component.
+  class AbContact extends HTMLElement {
+    connectedCallback() {
+      if (this.shadowRoot) return;
+      const r = this.attachShadow({ mode: 'open' });
+      r.innerHTML = '<fieldset><legend>Contact</legend><ab-veld label="E-mailadres" name="email" type="email"></ab-veld></fieldset>';
+    }
+  }
+  customElements.define('ab-contact', AbContact);
+
+  class AbKaart extends HTMLElement {
+    connectedCallback() {
+      if (this.shadowRoot) return;
+      const r = this.attachShadow({ mode: 'open' });
+      r.innerHTML = '<div style="border:1px solid #ccc;padding:8px"><h3></h3><slot></slot></div>';
+      r.querySelector('h3').textContent = this.getAttribute('titel');
+    }
+  }
+  customElements.define('ab-kaart', AbKaart);
+
+  // Keuzelijst in een shadow root; opent op een klik, niet op mousedown.
+  class AbKeuze extends HTMLElement {
+    connectedCallback() {
+      if (this.shadowRoot) return;
+      const r = this.attachShadow({ mode: 'open' });
+      r.innerHTML = `<style>.box{border:1px solid #999;width:240px;min-height:24px;padding:2px 6px;cursor:pointer}
+        ul{list-style:none;margin:0;padding:0;border:1px solid #999;width:250px} li{padding:3px 6px} [hidden]{display:none}</style>
+        <div style="margin:8px 0"><span id="l"></span><br>
+        <div class="box" role="combobox" tabindex="0" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="l" aria-controls="lijst"><span class="placeholder">Kies</span></div>
+        <ul role="listbox" id="lijst" hidden></ul></div>`;
+      r.getElementById('l').textContent = this.getAttribute('label');
+      const box = r.querySelector('.box'), ul = r.getElementById('lijst');
+      for (const o of this.getAttribute('opties').split(',')) {
+        const li = document.createElement('li');
+        li.setAttribute('role', 'option'); li.textContent = o;
+        li.addEventListener('click', () => { staat[this.getAttribute('name')] = o; box.textContent = o; ul.hidden = true; box.setAttribute('aria-expanded', 'false'); });
+        ul.appendChild(li);
+      }
+      box.addEventListener('click', () => { ul.hidden = !ul.hidden; box.setAttribute('aria-expanded', String(!ul.hidden)); });
+    }
+  }
+  customElements.define('ab-keuze', AbKeuze);
+</script>
+</body>
+</html>

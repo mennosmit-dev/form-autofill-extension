@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "Adressenboekje (prototype)",
+  "version": "0.6.0",
+  "description": "Gegevens van een nieuwe collega uit HRSuite halen en in elk portaal invullen (Insurer A, Insurer B, HealthDesk, TravelCard en elke andere site na één keer koppelen). Prototype.",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting"
+  ],
+  "optional_host_permissions": [
+    "https://*/*",
+    "http://*/*"
+  ],
+  "action": {
+    "default_title": "Adressenboekje",
+    "default_popup": "popup.html"
+  }
+}

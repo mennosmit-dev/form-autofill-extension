@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Testformulier 2: Engels, geen labels</title>
+<style>body{font:14px system-ui;max-width:520px;margin:30px auto}input,select{width:100%;padding:5px;margin-top:8px}.uitleg{color:#666}</style></head>
+<body>
+<h1>Testformulier 2</h1>
+<p class="uitleg">Nagebouwd portaal zonder labels: alleen placeholders en technische namen (camelCase), één adresveld, een keuzelijst en een datumveld. Geen echt portaal.</p>
+<form onsubmit="event.preventDefault(); document.getElementById('uit').textContent = JSON.stringify(Object.fromEntries(new FormData(this)), null, 2)">
+  <input name="firstName" placeholder="First name">
+  <input name="lastName" placeholder="Last name">
+  <input name="emailAddress" type="email" placeholder="Work email">
+  <input name="streetAddress" placeholder="Address">
+  <input name="zipCode" placeholder="Zip">
+  <input name="city" placeholder="City">
+  <select name="country"><option value="">Country…</option><option value="BE">Belgium</option><option value="NL">Netherlands</option></select>
+  <input name="dateOfBirth" type="date">
+  <input name="password" type="password" placeholder="Password">
+  <button>Submit (toont alleen wat het portaal ontvangt)</button>
+</form>
+<pre id="uit"></pre>
+</body></html>

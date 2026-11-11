@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>HRSuite (nagebouwd, alleen het live scherm)</title>
+<!-- Helemaal verzonnen HRSuite-achtig scherm zonder paginagegevens in het script en zonder één invoerveld:
+     alles wordt na 1,5 s en 2,5 s met JavaScript opgebouwd, met per keer andere CSS-klassen.
+     Label/waarde op zes manieren: dt/dd in een webcomponent (shadow DOM), een tabel met kopregel, aria-labelledby,
+     <label for> bij een tekst, aria-label, en "Label: waarde" in één blokje. Alleen de verzonnen testpersoon. -->
+<style> body { font: 14px system-ui, sans-serif; margin: 20px; } th, td { padding: 2px 8px; text-align: left; } </style>
+</head>
+<body>
+<div id="app">Bezig met laden...</div>
+<script>
+  function k() { return 'x' + Math.random().toString(36).slice(2, 8); }
+  // De gegevens komen "van de server" in een vorm die de extensie niet kent (geen DefineDataField).
+  var bundel = JSON.parse(atob('eyJhbiI6IlBlcnNvb24iLCJ2biI6IlRlc3QgSmFuIiwiZ3MiOiJNYW4iLCJnZCI6IjA3LTAzLTE5OTUifQ=='));
+
+  customElements.define('hrsuite-persoon', class extends HTMLElement {
+    connectedCallback() {
+      if (this.shadowRoot) return;
+      this.attachShadow({ mode: 'open' }).innerHTML = '<dl>'
+        + '<dt class="' + k() + '">Achternaam</dt><dd class="' + k() + '">' + bundel.an + '</dd>'
+        + '<dt class="' + k() + '">Voornamen</dt><dd class="' + k() + '">' + bundel.vn + '</dd>'
+        + '<dt class="' + k() + '">Geslacht</dt><dd class="' + k() + '">' + bundel.gs + '</dd>'
+        + '</dl>';
+    }
+  });
+
+  setTimeout(function () {
+    var app = document.getElementById('app');
+    app.innerHTML = '<h1 class="' + k() + '">Medewerker</h1>'
+      + '<hrsuite-persoon></hrsuite-persoon>'
+      + '<table class="' + k() + '"><thead><tr><th>Postcode</th><th>Huisnummer</th><th>Toevoeging</th><th>Straat</th><th>Woonplaats</th></tr></thead>'
+      + '<tbody><tr><td>1234 AB</td><td>12</td><td>A</td><td>Teststraat</td><td>Utrecht</td></tr></tbody></table>'
+      + '<p><span id="l-gd" class="' + k() + '">Geboortedatum</span> <span class="' + k() + '">(dd-mm-jjjj)</span></p>'
+      + '<div role="textbox" aria-readonly="true" aria-labelledby="l-gd" class="' + k() + '">' + bundel.gd + '</div>'
+      + '<p><label for="em" class="' + k() + '">E-mail werk</label> <span id="em" class="' + k() + '">test.persoon@werk.example</span></p>'
+      + '<p><span aria-label="Mobiel" class="' + k() + '">06-12345678</span></p>'
+      + '<p class="' + k() + '">Pasfotonummer: 7781</p>';
+  }, 1500);
+
+  setTimeout(function () {
+    var blok = document.createElement('section');
+    blok.className = k();
+    blok.innerHTML = '<h2>Contract</h2>'
+      + '<div class="' + k() + '">Type contract: Contract voor onbepaalde tijd</div>'
+      + '<div class="' + k() + '">Begindatum contract: 01-11-2026</div>'
+      + '<div class="' + k() + '">Uren per week: 32</div>'
+      + '<div class="' + k() + '">Bruto maandloon: € 3.500,00</div>';
+    document.getElementById('app').appendChild(blok);
+  }, 2300);
+</script>
+</body>
+</html>

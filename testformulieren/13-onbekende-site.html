@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>Medisch portaal (nagebouwd, niet in portalen.js)</title>
+<!-- Nagebouwd: een gewoon formulier op een site die niet in portalen.js staat (de test opent hem via localhost).
+     Na één keer koppelen hoort hij een eigen portaal te zijn, met e-mail werk. -->
+<style> body { font: 14px system-ui, sans-serif; margin: 20px; } div { margin: 8px 0; } </style>
+</head>
+<body>
+<h1>Nieuwe medewerker aanmelden</h1>
+<form id="f">
+  <div><label for="vn">Voornaam</label><br><input id="vn" name="vn"></div>
+  <div><label for="an">Achternaam</label><br><input id="an" name="an"></div>
+  <div><label for="em">E-mailadres</label><br><input id="em" name="em" type="email"></div>
+  <div><label for="gd">Geboortedatum</label><br><input id="gd" name="gd" placeholder="dd-mm-jjjj"></div>
+  <div><label for="pc">Postcode</label><br><input id="pc" name="pc"></div>
+  <div><label for="ref">Referentie werkgever</label><br><input id="ref" name="ref"></div>
+  <button>Verstuur</button>
+</form>
+<script>
+  window.staat = {};
+  window.verstuurd = false;
+  const f = document.getElementById('f');
+  f.addEventListener('submit', e => { e.preventDefault(); window.verstuurd = true; });
+  f.addEventListener('input', e => { staat[e.target.name] = e.target.value; });
+</script>
+</body>
+</html>

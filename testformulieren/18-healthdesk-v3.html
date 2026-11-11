@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>HealthDesk (verzonnen testportaal)</title>
+<!-- Verzonnen portaal "HealthDesk" met lastige eigenschappen: velden zonder label, telefoonvelden als keuzelijst (landcode)
+     met het nummer in een vakje zonder label, en datumkiezers met een id dat per keer laden anders is.
+     window.staat = wat het formulier ziet; window.verstuurd moet false blijven. -->
+<style> body { font: 14px system-ui, sans-serif; margin: 20px; } td { padding: 3px 6px; } </style>
+</head>
+<body>
+<h1>Werknemer toevoegen</h1>
+<form id="f">
+<table>
+  <tr><td></td><td><input data-k="vrij1"></td></tr>
+  <tr><td><label for="pn">Medewerkernummer</label></td><td><input id="pn" data-k="personeelsnummer"></td></tr>
+  <tr><td><label for="an">Achternaam</label></td><td><input id="an" data-k="achternaam"></td></tr>
+  <tr><td><label for="tv">Tussenvoegsels</label></td><td><input id="tv" data-k="tussenvoegsel"></td></tr>
+  <tr><td><label for="rn">Roepnaam</label></td><td><input id="rn" data-k="roepnaam"></td></tr>
+  <tr><td><label for="vl">Voorletters</label></td><td><input id="vl" data-k="voorletters"></td></tr>
+  <tr><td></td><td><select data-k="keuze2"><option value="0">Onbekend</option><option value="M">Man</option><option value="V">Vrouw</option></select></td></tr>
+  <tr><td></td><td><input class="dp" data-k="datum3"></td></tr>
+  <tr><td></td><td><select data-k="keuze4"><option value="">-</option><option value="NL">Nederland</option></select></td></tr>
+  <tr><td><label for="pc">Postcode</label></td><td><input id="pc" data-k="postcode"></td></tr>
+  <tr><td><label for="hn">Nummer en toevoeging</label></td><td><input id="hn" data-k="huisnummer" style="width:60px"> <input data-k="toevoeging" style="width:40px"></td></tr>
+  <tr><td><label for="ea">Adresregel 2</label></td><td><input id="ea" data-k="extra"></td></tr>
+  <tr><td><label for="st">Straat</label></td><td><input id="st" data-k="straat"></td></tr>
+  <tr><td><label for="pl">Woonplaats</label></td><td><input id="pl" data-k="plaats"></td></tr>
+  <tr><td><label for="tp">Telefoon privé</label></td><td><input id="tp" role="combobox" aria-autocomplete="list" value="+31" data-k="lc-tp" style="width:50px"> <input data-k="telPrive"></td></tr>
+  <tr><td><label for="tw">Telefoon werk</label></td><td><input id="tw" role="combobox" aria-autocomplete="list" value="+31" data-k="lc-tw" style="width:50px"> <input data-k="telWerk"></td></tr>
+  <tr><td><label for="mp">Mobiel privé</label></td><td><input id="mp" role="combobox" aria-autocomplete="list" value="+31" data-k="lc-mp" style="width:50px"> <input data-k="mobielPrive"></td></tr>
+  <tr><td><label for="ep">E-mailadres privé</label></td><td><input id="ep" data-k="emailPrive"></td></tr>
+  <tr><td><label for="ew">E-mailadres werk</label></td><td><input id="ew" data-k="emailWerk"></td></tr>
+  <tr><td><label for="ib">IBAN</label></td><td><input id="ib" data-k="iban"></td></tr>
+  <tr><td><label for="bc">BIC</label></td><td><input id="bc" data-k="bic"></td></tr>
+  <tr><td></td><td><input class="dp" data-k="datum9"></td></tr>
+  <tr><td></td><td><textarea data-k="notitie10"></textarea></td></tr>
+  <tr><td></td><td><input class="dp" data-k="datum11"></td></tr>
+  <tr><td><label for="au">Uren per week</label></td><td><input id="au" data-k="uren"></td></tr>
+  <tr><td><label for="bm">Maandsalaris bruto</label></td><td><input id="bm" data-k="maandloon"></td></tr>
+</table>
+<button id="verstuur">Opslaan</button>
+</form>
+<script>
+  window.staat = {};
+  window.verstuurd = false;
+  document.getElementById('f').addEventListener('submit', e => { e.preventDefault(); window.verstuurd = true; });
+  // Zoals jQuery UI: elke datumkiezer krijgt bij het laden een id met de tijd erin.
+  document.querySelectorAll('.dp').forEach((el, i) => { el.id = 'dp' + (Date.now() + i); });
+  for (const el of document.querySelectorAll('[data-k]')) {
+    staat[el.dataset.k] = el.value;
+    el.addEventListener('input', () => { staat[el.dataset.k] = el.value; });
+    el.addEventListener('change', () => { staat[el.dataset.k] = el.value; });
+  }
+</script>
+</body>
+</html>

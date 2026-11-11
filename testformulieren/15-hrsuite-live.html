@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>HRSuite (nagebouwd, live opgebouwd, met paginagegevens in het script)</title>
+<!-- Verzonnen HR-systeem waarvan de pagina zijn gegevens in een script meestuurt:
+     in de bron staan geen formuliervelden, wel per veld data.DefineDataField({"Id","Label",...}) en een rij {"1":{Id: waarde}}.
+     Alles verder verzonnen; alleen de verzonnen testpersoon. Het scherm wordt pas na 1,2 s en 2,0 s door JavaScript opgebouwd,
+     met per keer andere CSS-klassen, en laat niet alles zien: BSN en geboortedatum (verborgen veld) staan alleen in het script. -->
+<style> body { font: 14px system-ui, sans-serif; margin: 20px; } .laden { color: #888; } </style>
+</head>
+<body>
+<div id="app"><p class="laden">Bezig met laden...</p></div>
+<script>
+  // Zoals in de echte bron: velddefinities en daarna de rij met waarden, gesleuteld op dezelfde Id.
+  var data = { kolommen: {}, DefineDataField: function (o) { this.kolommen[o.Id] = o; return o; } };
+  var velden = {
+    "p_last_name":data.DefineDataField({"Id":"p_last_name","Label":"Geboortenaam","DataType":"string","Visible":true}),
+    "p_prefix":data.DefineDataField({"Id":"p_prefix","Label":"Voorv. geb.naam","DataType":"string","Visible":true}),
+    "p_first_names":data.DefineDataField({"Id":"p_first_names","Label":"Voornaam","DataType":"string","Visible":true}),
+    "p_call_name":data.DefineDataField({"Id":"p_call_name","Label":"Roepnaam","DataType":"string","Visible":true}),
+    "p_initials":data.DefineDataField({"Id":"p_initials","Label":"Voorletters","DataType":"string","Visible":true}),
+    "p_gender":data.DefineDataField({"Id":"p_gender","Label":"Geslacht","DataType":"string","Visible":true}),
+    "p_ssn":data.DefineDataField({"Id":"p_ssn","Label":"Burgerservicenummer","DataType":"string","Visible":false}),
+    "p_birth_date":data.DefineDataField({"Id":"p_birth_date","Label":"Geboortedatum","DataType":"date","Visible":false}),
+    "a_postcode":data.DefineDataField({"Id":"a_postcode","Label":"Postcode","DataType":"string","Visible":true}),
+    "a_house_number":data.DefineDataField({"Id":"a_house_number","Label":"","DataType":"int","Visible":true}),
+    "a_house_suffix":data.DefineDataField({"Id":"a_house_suffix","Label":"Toev. aan huisnr.","DataType":"string","Visible":true}),
+    "a_street":data.DefineDataField({"Id":"a_street","Label":"Straat","DataType":"string","Visible":true}),
+    "a_city":data.DefineDataField({"Id":"a_city","Label":"Woonplaats","DataType":"string","Visible":true}),
+    "c_email_work":data.DefineDataField({"Id":"c_email_work","Label":"E-mail werk","DataType":"string","Visible":true}),
+    "c_email_private":data.DefineDataField({"Id":"c_email_private","Label":"E-mail privé","DataType":"string","Visible":true}),
+    "c_mobile_2":data.DefineDataField({"Id":"c_mobile_2","Label":"Mobiel privé","DataType":"string","Visible":true}),
+    "e_start_date":data.DefineDataField({"Id":"e_start_date","Label":"Begindatum contract","DataType":"date","Visible":true}),
+    "e_contract_type":data.DefineDataField({"Id":"e_contract_type","Label":"Type contract","DataType":"string","Visible":true}),
+    "e_hours_per_week":data.DefineDataField({"Id":"e_hours_per_week","Label":"","DataType":"decimal","Visible":true}),
+    "e_salary_kind":data.DefineDataField({"Id":"e_salary_kind","Label":"Soort salaris","DataType":"string","Visible":true}),
+    "Xx01":data.DefineDataField({"Id":"Xx01","Label":"Opmerking {intern}","DataType":"string","Visible":true})
+  };
+  var rij = {"1":{"p_last_name":"Persoon","p_prefix":"van der","p_first_names":"Test Jan","p_call_name":"Test","p_initials":"T.J.","p_gender":"M","p_ssn":"111222333","p_birth_date":"1995-03-07T00:00:00",
+    "a_postcode":"1234 AB","a_house_number":12,"a_house_suffix":"A","a_street":"Teststraat","a_city":"Utrecht","c_email_work":"test.persoon@werk.example","c_email_private":"test.persoon@prive.example",
+    "c_mobile_2":"06-12345678","e_start_date":"2026-11-01T00:00:00","e_contract_type":"Onbepaalde tijd","e_hours_per_week":"32,00","e_salary_kind":"Maandloon","Xx01":"tekst met } en { erin"}};
+
+  // Het scherm: na 1,2 s het eerste blok, na 2,0 s het tweede. Klassen per keer anders (zoals gegenereerde CSS).
+  function k() { return 'c' + Math.random().toString(36).slice(2, 8); }
+  setTimeout(function () {
+    var app = document.getElementById('app');
+    app.innerHTML = '<h1 class="' + k() + '">Beoordelen contract</h1>'
+      + '<div class="' + k() + '"><span class="' + k() + '">Geboortenaam</span><span class="' + k() + '">Persoon</span></div>'
+      + '<div class="' + k() + '"><span class="' + k() + '">Roepnaam</span><span class="' + k() + '">Test</span></div>';
+  }, 1200);
+  setTimeout(function () {
+    var app = document.getElementById('app');
+    var blok = document.createElement('div');
+    blok.className = k();
+    blok.innerHTML = '<div class="' + k() + '"><span class="' + k() + '">Woonplaats</span><span class="' + k() + '">Utrecht</span></div>'
+      + '<div class="' + k() + '"><span class="' + k() + '">Type contract</span><span class="' + k() + '">Onbepaalde tijd</span></div>';
+    app.appendChild(blok);
+  }, 2000);
+</script>
+</body>
+</html>

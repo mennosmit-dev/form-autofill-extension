@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="nl">
+<head><meta charset="utf-8"><title>Testformulier 3: framework-achtig (React-gedrag)</title>
+<style>body{font:14px system-ui;max-width:520px;margin:30px auto}.rij{margin-top:8px}.rij span{display:block;font-size:12px;color:#444}input{width:100%;padding:5px}.uitleg{color:#666}</style></head>
+<body>
+<h1>Testformulier 3</h1>
+<p class="uitleg">Nagebouwd modern portaal. Labels zijn losse &lt;span&gt;s zonder koppeling en de pagina houdt een eigen "state" bij die alleen bijwerkt bij een input-event, net als React. Wie alleen <code>el.value = …</code> zet, ziet de tekst staan, maar het portaal verstuurt leeg. Geen echt portaal.</p>
+<div id="app"></div>
+<button id="verstuur">Verstuur (toont de state van het portaal)</button>
+<pre id="uit"></pre>
+<script>
+  const velden = [['Roepnaam', 'a1'], ['Achternaam', 'a2'], ['E-mailadres', 'a3'], ['Telefoonnummer', 'a4'], ['Datum in dienst', 'a5'], ['Afdeling', 'a6'], ['Bruto maandsalaris', 'a7']];
+  const state = {};
+  const app = document.getElementById('app');
+  for (const [tekst, key] of velden) {
+    state[key] = '';
+    const rij = document.createElement('div'); rij.className = 'rij';
+    rij.innerHTML = `<span>${tekst}</span><input data-key="${key}">`;
+    rij.querySelector('input').addEventListener('input', e => { state[key] = e.target.value; });
+    app.appendChild(rij);
+  }
+  document.getElementById('verstuur').onclick = () => {
+    document.getElementById('uit').textContent = JSON.stringify(Object.fromEntries(velden.map(([t, k]) => [t, state[k]])), null, 2);
+  };
+</script>
+</body></html>
